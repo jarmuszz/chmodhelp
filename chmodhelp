@@ -1,0 +1,215 @@
+#!/bin/bash
+
+function print_help {
+#################
+# help function #
+#################
+  #
+  # prints help and then exits
+  #
+  echo "Usage: chmodhelp"
+  echo "       chmodhelp [CHMOD NUMBER]"
+  echo "       chmodhelp [CHMOD TEXT]"
+  echo ""
+  echo "Prints chmod table corresponding to CHMOD NUMBER or CHMOD TEXT."
+  echo "If no argument is given, example table is printed"
+  echo ""
+  echo "Examples:"
+  echo "       chmodhelp"
+  echo "       chmodhelp 755"
+  echo "       chmodhelp rwxr-xr-x"
+  exit 1
+}
+
+function num_to_text {
+  for ((i=1; i<=3; i++)); do
+  ########################
+  # converts num to text #
+  ########################
+    #
+    # cuts number every iteration
+    # e.g. 755:
+    #   1st iteration: 7
+    #   2nd iteration: 5
+    #   3rd iteration: 5
+    num=$(echo $1|cut -b${i})
+    #
+    # checking every number is faster than calculations
+    case $num in
+      7) echo -n "rwx" ;;
+      6) echo -n "rw-" ;;
+      5) echo -n "r-x" ;;
+      4) echo -n "r--" ;;
+      3) echo -n "-wx" ;;
+      2) echo -n "-w-" ;;
+      1) echo -n "--x" ;;
+      0) echo -n "---" ;;
+    esac
+  done
+}
+
+function text_to_num {
+    #
+    # init of the array
+    a=()
+    
+
+    for ((i=0; i<3; i++)) {
+    ########################
+    # converts text to num #
+    ########################
+      #
+      # start of the segment
+      s=$(( $i * 3 + 1 ))
+      #
+      # end of the segment
+      e=$(( $s + 2 ))
+      #
+      # checking every combination is
+      # faster than the calculations
+      case $(echo -n $1 | cut -b${s}-${e}) in
+        "rwx") a+="7" ;;
+        "rw-") a+="6" ;;
+        "r-x") a+="5" ;;
+        "r--") a+="4" ;;
+        "-wx") a+="3" ;;
+        "-w-") a+="2" ;;
+        "--x") a+="1" ;;
+        "---") a+="0" ;;
+        # 
+        # function returns -1
+        # when format is invalid
+        *)     echo "-1" 
+               exit 1 ;;
+      esac
+    }
+  echo $a
+}
+
+function draw_table {
+  #
+  # init of the array
+  a=()
+  #
+  # init of num variable
+  num=0
+  
+
+  if [[ ! -z $2 ]]; then
+  ######################################
+  # runs when first argument is a text #
+  ######################################
+    #
+    # num -> chmod number
+    num=$(text_to_num $1)
+    #
+    # text_to_num returns -1 when format is incorrect
+    [[ $num -eq -1 ]] && print_help
+    #
+    # o -> chmod text
+    o=$1
+
+
+  else
+  ########################################
+  # runs when first argument is a number #
+  ########################################
+    #
+    #
+    # is number lower than 777 (maximal chmod number)
+    [[ $1 -gt 777 ]] && print_help
+    #
+    # translate code to text
+    o=$(num_to_text $1)
+    #
+    # num -> chmod text
+    num=$o
+  fi
+ 
+
+  for ((i=1; i<=${#o}; i++)) {
+  #####################
+  # colorizing output #
+  #####################
+    #
+    #
+    p=$(echo $o | cut -b${i})
+    case $p in
+      #
+      # red
+      "r") a[i-1]="\e[31m${p}\e[39m" ;;
+      #
+      # green
+      "w") a[i-1]="\e[32m${p}\e[39m" ;;
+      #
+      # blue
+      "x") a[i-1]="\e[34m${p}\e[39m" ;;
+      #
+      # default color
+      "-") a[i-1]="-" ;;
+      *)
+    esac
+  }
+  
+##################
+# printing table #
+##################
+  # 
+  echo -en  '\e[39m'
+  echo -e  '    +---+---+---+'
+  echo -e  '    | r | w | x |'
+  echo -e  '+---+---+---+---+'
+  echo -e  "| O | ${a[0]} | ${a[1]} | ${a[2]} |" 
+  echo -e  '+---+---+---+---+'
+  echo -e  "| G | ${a[3]} | ${a[4]} | ${a[5]} |" 
+  echo -e  '+---+---+---+---+'
+  echo -e  "| E | ${a[6]} | ${a[7]} | ${a[8]} |" 
+  echo -e  '+---+---+---+---+'
+  echo -e  "${1} -> ${num}"
+}
+
+function demo_table {
+  ##############
+  # demo table #
+  ##############
+  #
+  # runs when no argument is passed
+  #
+  echo -en  '\e[39m'
+  echo -e  '           +------+-------+---------+'
+  echo -e  '           | read | write | execute |'
+  echo -e  '+----------+------+-------+---------+'
+  echo -e  "| Owner    | 400  |  200  |   100   |" 
+  echo -e  '+----------+------+-------+---------+'
+  echo -e  "| Group    | 040  |  020  |   010   |" 
+  echo -e  '+----------+------+-------+---------+'
+  echo -e  "| Everyone | 004  |  002  |   001   |" 
+  echo -e  '+----------+------+-------+---------+'
+}
+
+######################
+# checking arguments #
+######################
+  #
+  #
+if [[ -z $1 ]]; then
+  #
+  # runs when no argument is passed
+  demo_table
+  #
+elif [ $1 -eq $1 2> /dev/null ]; then
+  #
+  # runs when argument is a number
+  draw_table $1
+  #
+elif [[ ${#1} = 9 ]]; then
+  #
+  # runs when lenght of argument is 9 (lenght of chmod number)
+  draw_table $1 1
+  #
+else
+  #
+  # when argument is completly incorrect
+  print_help
+  #
+fi
