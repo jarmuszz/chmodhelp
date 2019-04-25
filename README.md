@@ -5,11 +5,14 @@ Chmodhelp is a simple bash script that helps with everyday use of chmod.
 
 1. Run install.sh
 
-```install.sh``
+```
+$ install.sh
+``` 
 
 2. This window should appear in a terminal:
 
-```Chmodhelp Instalation
+```
+Chmodhelp Instalation
 ctrl-c to exit
 
 Instal for:
@@ -27,18 +30,22 @@ and prints it as a table.
 If no argument is given, then example table is printed.
 
 Run
-```chmodhelp -h
+```
+chmodhelp -h
 ```
 To get help
 
 ## Examples
 
-```$ chmodhelp 755
 ```
-![example1](/images/example1.png)
+$ chmodhelp 755
+```
+![](/images/example1.png)
 
 
-```$ chmodhelp 644
+
+```
+$ chmodhelp 644
 ```
 ![example2](/images/example2.png)
 
