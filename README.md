@@ -44,7 +44,7 @@ $ chmodhelp 755
 
 
 ```
-$ chmodhelp 644
+$ chmodhelp rw-r--r--
 ```
 ![](/images/example2.png)
 
