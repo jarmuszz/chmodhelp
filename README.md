@@ -43,14 +43,18 @@ $ chmodhelp 755
 ![](/images/example1.png)
 
 
-
 ```
 $ chmodhelp 644
 ```
-![example2](/images/example2.png)
+![](/images/example2.png)
 
+
+```
+$ chmodhelp
+```
+![](/images/example3.png)
 
 
 ## License
-This software is distributed under GNU General Public License Version 3.  
+This software is distributed under GNU General Public License Version 3 from 29th june 2007.
 See *LICENSE* for more information.
