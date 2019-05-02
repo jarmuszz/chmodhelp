@@ -7,21 +7,67 @@ function print_help {
   #
   # prints help and then exits
   #
-  echo "Usage: chmodhelp"
-  echo "       chmodhelp [NUMERIC NOTATION]"
-  echo "       chmodhelp [SYMBOLIC NOTATION]"
-  echo ""
-  echo "Prints chmod table corresponding to NUMERIC NOTATION or SYMBOLIC NOTATION."
-  echo "If no argument is given, example table is printed"
-  echo ""
-  echo "Examples:"
-  echo "       chmodhelp"
-  echo "       chmodhelp 755"
-  echo "       chmodhelp rwxr-xr-x"
-  echo ""
-  echo "Version: 1.1"
-  echo 'All bugs report to: https://github.com/jarmuszz/chmodhelp'
-  exit 1
+  if [[ -z $1 ]]; then
+    echo "Usage: chmodhelp [NUMERIC NOTATION]"
+    echo "       chmodhelp [SYMBOLIC NOTATION]"
+    echo "       chmodhelp [OPTION]"
+    echo ""
+    echo "Prints chmod table corresponding to NUMERIC NOTATION or SYMBOLIC NOTATION."
+    echo ""
+    echo "Options: {-h, --help}     Displays this message"
+    echo "         {-d, --demo}     Prints demo table"
+    echo ""
+    echo "Examples:"
+    echo "       chmodhelp"
+    echo "       chmodhelp 755"
+    echo "       chmodhelp rwxr-xr-x"
+    echo "       chmodhelp -h"
+    echo "       chmodhelp --demo"
+    echo ""
+    echo "Version: 1.2"
+    echo 'All bugs report to: https://github.com/jarmuszz/chmodhelp'
+    exit 1
+  else
+    echo -e "chmodhelp \e[91mError\e[0m:"
+    echo -e "    \e[1m${1}\e[0m"
+    echo -e "Type \e[97mchmodhelp -h \e[0mfor help"
+    exit 1
+  fi
+}
+
+function check_options {
+###########################
+# checks options and runs #
+#  coresponding commands  #
+###########################
+  #
+  #
+  # OPTIONS array contains avaible
+  # options. ACTIONS table contains
+  # coresponding commands.
+  # e.g:
+  #   OPTIONS[0] -> '-h'
+  #   ACTIONS[0] -> 'print_help'
+  OPTIONS=('-h' '--help' '-d' '--demo')
+  #
+  ACTIONS=("print_help" "print_help" 
+           "demo_table" "demo_table")
+  #
+  #
+  # This loop checks every iteration
+  # if argument is in OPTIONS array,
+  # if it is, then coresponding command  
+  # form ACTIONS array is executed.
+  for ((i=0; i<=${#OPTIONS[*]}; i++)) {
+    if [[ $1 = "${OPTIONS[$i]}" ]]; then
+      ${ACTIONS[$i]}
+      exit 0
+  fi
+  }
+  #
+  # Function returns -1 when argument
+  # is not in OPTIONS array.
+  print_help "Invalid Option: \"$1\""
 }
 
 function num_to_text {
@@ -107,7 +153,7 @@ function draw_table {
     num=$(text_to_num $1)
     #
     # text_to_num returns -1 when format is incorrect
-    [[ $num -eq -1 ]] && print_help
+    [[ $num -eq -1 ]] && print_help "Invalid Symbolic Notation: $1"
     #
     # o -> symbolic notation
     o=$1
@@ -121,7 +167,7 @@ function draw_table {
     #
     # is number lower than 777 
     # (maximal number of numeric notation)
-    [[ $1 -gt 777 ]] && print_help
+    [[ $1 -gt 777 ]] && print_help "Invalid Numeric Notation: $1"
     #
     # translate numeric to symbolic notation
     # o -> numeric notation
@@ -178,8 +224,6 @@ function demo_table {
   # demo table #
   ##############
   #
-  # runs when no argument is passed
-  #
   echo -en  '\e[39m'
   echo -e  '           +------+-------+---------+'
   echo -e  '           | read | write | execute |'
@@ -192,6 +236,7 @@ function demo_table {
   echo -e  '+----------+------+-------+---------+'
 }
 
+
 ######################
 # checking arguments #
 ######################
@@ -200,12 +245,32 @@ function demo_table {
 if [[ -z $1 ]]; then
   #
   # runs when no argument is passed
-  demo_table
+  print_help
   #
-elif [ $1 -eq $1 2> /dev/null ]; then
+elif [ $1 -eq $1 2>/dev/null ]; then
+##################################
+# runs when argument is a number #
+##################################
   #
-  # runs when argument is a number
-  draw_table $1
+  # Arguments are not mutable,
+  # so we create var that holds
+  # value of the first argument.
+  arg=$1
+  #
+  # User may input number with dash
+  # at the beginning, if it's the
+  # case, then we cut the dash here.
+  [ $arg -lt 0 ] &&
+    arg=$(echo $arg | cut -b2-)
+  #
+  # Valid numeric notation is 3 digits
+  # long. If argument is shorter, then
+  # it's invalid.
+  [ ${#arg} = 3 ]   &&
+    draw_table $arg ||
+    print_help "Invalid Numeric Notation: \"$1\"
+    Number must be 3 digits long"
+  #
   #
 elif [[ ${#1} = 9 ]]; then
   #
@@ -214,7 +279,7 @@ elif [[ ${#1} = 9 ]]; then
   #
 else
   #
-  # when argument is completly incorrect
-  print_help
+  # runs when argument doesnt mach any of above
+  check_options $1
   #
 fi

@@ -5,7 +5,7 @@ c=""
 clear
 echo -ne "\e[39m"
 echo    "Chmodhelp Instalation"
-echo -e "\e[1mctrl-c to exit\e[21m"
+echo -e "\e[1mctrl-c to exit\e[0m"
 echo    ""
 
 echo    "Instal for:"

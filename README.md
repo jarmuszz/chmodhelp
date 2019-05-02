@@ -1,6 +1,12 @@
 # Chmodhelp
 Chmodhelp is a simple bash script that helps with everyday use of chmod.
 
+1. [Installation](#installation)
+2. [Usage](#usage)
+    * [Options](#options)
+3. [Examples](#examples)
+4. [License](#license)
+
 ## Installation
 
 1. Run install.sh
@@ -27,33 +33,35 @@ Instal for:
 ## Usage
 Chmodhelp takes symbolic or numeric notation of unix permissions as first argument  
 and prints it as a table.
-If no argument is given, then example table is printed.
 
-Run
+### Options
+``` 
+  {-h, --help}     Displays help message"
+  {-d, --demo}     Prints demo table"
 ```
-chmodhelp -h
-```
-To get help
 
 ## Examples
-
+![](/images/example1.png)
 ```
 $ chmodhelp 755
 ```
-![](/images/example1.png)
+  
 
-
+![](/images/example2.png)
 ```
 $ chmodhelp rw-r--r--
 ```
-![](/images/example2.png)
+  
 
-
-```
-$ chmodhelp
-```
 ![](/images/example3.png)
-
+```
+$ chmodhelp -d
+```
+or
+```
+$ chmodhelp --demo
+```
+  
 
 ## License
 This software is distributed under GNU General Public License Version 3 from 29th june 2007.

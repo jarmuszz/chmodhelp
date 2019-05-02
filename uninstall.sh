@@ -3,7 +3,7 @@
 clear
 echo -ne "\e[39m"
 echo    "Chmodhelp Uninstalation"
-echo -e "\e[1mctrl-c to exit\e[21m"
+echo -e "\e[1mctrl-c to exit\e[0m"
 echo    ""
 
 for ((i=0; i<=5; i++)) {
