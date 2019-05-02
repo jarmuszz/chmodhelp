@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 function print_help {
 #################
@@ -65,8 +65,8 @@ function check_options {
   fi
   }
   #
-  # Function returns -1 when argument
-  # is not in OPTIONS array.
+  # If argument is invalid, then
+  # error message is printed
   print_help "Invalid Option: \"$1\""
 }
 
