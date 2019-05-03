@@ -2,33 +2,23 @@
 Chmodhelp is a simple bash script that helps with everyday use of chmod.
 
 1. [Installation](#installation)
-2. [Usage](#usage)
+2. [Uninstallation](#uninstallation)
+3. [Usage](#usage)
     * [Options](#options)
-3. [Examples](#examples)
-4. [License](#license)
+4. [Examples](#examples)
+5. [License](#license)
 
 ## Installation
 
-1. Run install.sh
-
 ```
-$ install.sh
-``` 
-
-2. This window should appear in a terminal:
-
-```
-Chmodhelp Instalation
-ctrl-c to exit
-
-Instal for:
-  (1) Current user
-  (2) Everyone
-:
+$ make install
 ```
 
-3. Chose option, type its number and hit enter.
-   * Note: If you install only for current user, you will need to have _~/bin/_ in your $PATH.
+## Uninstallation
+
+```
+$ make uninstall
+```
 
 ## Usage
 Chmodhelp takes symbolic or numeric notation of unix permissions as first argument  
