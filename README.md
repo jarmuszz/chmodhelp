@@ -12,7 +12,11 @@ Chmodhelp is a simple bash script that helps with everyday use of chmod.
 
 ```
 $ make install
+<<<<<<< HEAD
 ``` 
+=======
+```
+>>>>>>> hotfix
 
 ## Uninstallation
 
