@@ -26,8 +26,9 @@ and prints it as a table.
 
 ### Options
 ``` 
-  {-h, --help}     Displays help message"
-  {-d, --demo}     Prints demo table"
+  -h, --help           Displays help message"
+  -d, --demo           Prints demo table"
+  -i, --interactive    Interactive mode"
 ```
 
 ## Examples
@@ -40,6 +41,16 @@ $ chmodhelp 755
 ![](/images/example2.png)
 ```
 $ chmodhelp rw-r--r--
+```
+  
+
+![](/images/example4.png)
+```
+$ chmodhelp -i
+```
+or
+```
+$ chmodhelp --interactive
 ```
   
 

@@ -14,8 +14,21 @@ function print_help {
     echo ""
     echo "Prints chmod table corresponding to NUMERIC NOTATION or SYMBOLIC NOTATION."
     echo ""
-    echo "Options: {-h, --help}     Displays this message"
-    echo "         {-d, --demo}     Prints demo table"
+    echo "Options: -h, --help           Displays this message"
+    echo "         -d, --demo           Prints demo table"
+    echo "         -i, --interactive    Interactive mode, see Interactive Mode for more help"
+    echo ""
+    echo "Interactive Mode:"
+    echo "    Typing position of cell will fill/empty it. Cell's Positions"
+    echo "    are made up of cell's class ((O)wner, (G)roup, (E)veryone)"
+    echo "    and cell's permission ((R)ead, (W)rite, E(X)ecute)."
+    echo ""
+    echo "    E.g. Valid Position for cell representing (O)wner's right"
+    echo "    to e(X)ecute is \"ox\" or \"xo\"."
+    echo ""
+    echo "    Upper and lowercase letters are treated as the same."
+    echo "    On the bottom of the table, Numeric and Symbolic Notation are shown."
+    echo "    Ctrl-C will exit program."
     echo ""
     echo "Examples:"
     echo "       chmodhelp"
@@ -24,7 +37,7 @@ function print_help {
     echo "       chmodhelp -h"
     echo "       chmodhelp --demo"
     echo ""
-    echo "Version: 1.2"
+    echo "Version: 1.3"
     echo 'All bugs report to: https://github.com/jarmuszz/chmodhelp'
     exit 1
   else
@@ -48,10 +61,11 @@ function check_options {
   # e.g:
   #   OPTIONS[0] -> '-h'
   #   ACTIONS[0] -> 'print_help'
-  OPTIONS=('-h' '--help' '-d' '--demo')
+  OPTIONS=('-h' '--help' '-d' '--demo' '-i' '--interactive')
   #
   ACTIONS=("print_help" "print_help" 
-           "demo_table" "demo_table")
+           "demo_table" "demo_table"
+           "interactive" "interactive")
   #
   #
   # This loop checks every iteration
@@ -217,6 +231,177 @@ function draw_table {
   echo -e  "| E | ${a[6]} | ${a[7]} | ${a[8]} |" 
   echo -e  '+---+---+---+---+'
   echo -e  "${1} -> ${num}"
+}
+
+function interactive {
+####################
+# Interactive mode #
+####################
+  #
+  # nn => Numeric Notation variable
+  nn=000
+  #
+  # r => row variable
+  r=0
+  #
+  # c => column variable
+  c=0
+  #
+  # valid => is user input valid
+  valid=1
+  #
+  # a => array filling the table
+  a=()
+  #
+  # Loop that fills array a with 
+  # spaces. This way table does 
+  # not break when field is empty.
+  for ((i=1; i<=9; i++)) {
+    a[i]=' '
+  }
+  case ${#n} in
+    1) n='00'${n} ;;
+    2) n='0'${n} ;;
+  esac
+  #
+  #
+  while true; do
+  #############
+  # Main Loop #
+  #############
+    #
+    # drawing table
+    clear
+    echo -en  '\e[39m'
+    echo -e  '    +---+---+---+'
+    echo -e  '    | \e[31mr\e[0m | \e[31mw\e[0m | \e[31mx\e[0m |'
+    echo -e  '+---+---+---+---+'
+    echo -e  "| \e[32mO\e[0m | ${a[1]} | ${a[2]} | ${a[3]} |" 
+    echo -e  '+---+---+---+---+'
+    echo -e  "| \e[32mG\e[0m | ${a[4]} | ${a[5]} | ${a[6]} |"  
+    echo -e  '+---+---+---+---+'
+    echo -e  "| \e[32mE\e[0m | ${a[7]} | ${a[8]} | ${a[9]} |" 
+    echo -e  '+---+---+---+---+'
+    #
+    # Prints numeric and symbolic notation.
+    nn=$(printf %03d $nn)
+    #printf %03d $nn
+    echo "$nn => $(num_to_text $nn)"
+    #
+    echo "Ctrl-C to exit"
+    #
+    # When given field is invalid
+    # additional message is printed.
+    if [[ $valid = 0 ]]; then
+      echo "Invalid field \"$u\"";
+      valid=1
+    fi
+    #
+    # reads user input
+    # u => holds user input
+    echo -n ":"
+    read u
+    #
+    #
+    # The '^^' after u variable makes 
+    # it upercase, this way lower and
+    # upercase are treated as the same.
+    #
+    # Note: "not reversed" means that
+    # permission char is the first one
+    # in the input.
+    #
+    case $(echo ${u^^} | cut -b1) in
+      # This part reverses input back
+      # if user typed it in reverse.
+      # e.g. xo => ox
+      #
+      # If 1st char of user input is
+      # r, w or x, that means user
+      # typed position reversed.
+      #
+      # ${u^^} makes $u upercase
+      # "rev" command reverses input.
+      'R' | 'W' | 'X') u=$(echo ${u^^} | rev) ;;
+      #
+      # If input is not reversed, then
+      # we only make $u variable uppercase.
+      *) u=${u^^} ;;
+    esac
+    #
+    #
+    case $(echo $u | cut -b1) in
+      # Checks rows and sets
+      # corresponding variables.
+      # r => row variable
+      # mult => numeric notation multiplayer
+      #
+      'O') r=0 
+           mult=100
+           ;;
+      'G') r=3 
+           mult=10
+           ;;
+      'E') r=6
+           mult=1
+           ;;
+        #
+        # runs when field is invalid
+      *)  valid=0 ;;
+    esac
+    #
+    # c => columns
+    c=$(echo $u | cut -b2)
+    #
+    case $c in 
+      # The same as above case
+      # statement, but
+      # checks columns
+      # instead of rows.
+      #
+      # bn => base number
+      'R') bn=4
+           c=1
+           ;;
+      'W') bn=2
+           c=2
+           ;;
+      'X') bn=1
+           c=3
+           ;;
+      #
+      # runs when output is invalid
+      *) valid=0 ;;
+    esac
+    #
+    #
+    if [[ $valid = 1 ]]; then
+    ################################
+    # calculating Numeric Notation # 
+    ################################
+      #
+      # cn => cell number
+      cn=$(( $r + $c ))
+      #
+      # runs when cell is empty
+      if [[ a[$cn] -eq ' ' ]]; then
+        #
+        # fills cell
+        a[$cn]='*'
+        # updates Numeric Notation
+        nn=$(( $bn * $mult + $nn ))
+        
+      # runs when cell is filled
+      else
+        #
+        # clears cell
+        a[$cn]=' '
+        #
+        # updates Numeric Notation
+        nn=$(( $nn - $bn * $mult ))
+      fi
+    fi
+  done
 }
 
 function demo_table {
