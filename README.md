@@ -44,7 +44,7 @@ $ chmodhelp rw-r--r--
 ```
   
 
-![](/images/example4.png)
+![](/images/example4.gif)
 ```
 $ chmodhelp -i
 ```
