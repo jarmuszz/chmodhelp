@@ -259,10 +259,6 @@ function interactive {
   for ((i=1; i<=9; i++)) {
     a[i]=' '
   }
-  case ${#n} in
-    1) n='00'${n} ;;
-    2) n='0'${n} ;;
-  esac
   #
   #
   while true; do
@@ -283,34 +279,67 @@ function interactive {
     echo -e  "| \e[32mE\e[0m | ${a[7]} | ${a[8]} | ${a[9]} |" 
     echo -e  '+---+---+---+---+'
     #
-    # Prints numeric and symbolic notation.
+    # "%03d" in "printf" mean, that
+    # variable "nn" will be always 
+    # printed as 3 digit number.
+    # It's because Numeric Notation
+    # always must be 3 (or in special
+    # cases 4) digits long.
     nn=$(printf %03d $nn)
-    #printf %03d $nn
+    #
+    # num_to_text function convets
+    # Numeric Notation to Symbolic
+    # Notation.
+    #
+    # Output will look like this:
+    #   755 => rwxr-xr-x
     echo "$nn => $(num_to_text $nn)"
     #
+    # Ctrl-C sends SIGINT signal
+    # that stops the program.
+    # More about POSIX signals:
+    #   en.wikipedia.org/wiki/Signal_(IPC)#POSIX_signals
     echo "Ctrl-C to exit"
     #
     # When given field is invalid
     # additional message is printed.
     if [[ $valid = 0 ]]; then
-      echo "Invalid field \"$u\"";
+      echo "Invalid field \"$ou\"";
       valid=1
     fi
     #
-    # reads user input
-    # u => holds user input
+    # Prints ":" before user input
     echo -n ":"
+    #
+    # Reads user input and stores
+    # it int the "u" variable.
     read u
     #
+    # Because "u" variable is modified
+    # later, we create variable "ou" 
+    # which contains original user 
+    # input. It will be printed when
+    # input is incorrect.
+    ou=$u
+    #
+    #
+    if [[ ${#u} > 2 ]]; then
+      valid=0
+    fi
     #
     # The '^^' after u variable makes 
     # it upercase, this way lower and
-    # upercase are treated as the same.
+    # upercase can be treated as the same.
     #
     # Note: "not reversed" means that
     # permission char is the first one
     # in the input.
     #
+    # Runs only if input is valid;
+    # this saves time when we know,
+    # that there's something wrong
+    # with the input.
+    [ $valid = 1 ] &&
     case $(echo ${u^^} | cut -b1) in
       # This part reverses input back
       # if user typed it in reverse.
@@ -320,7 +349,6 @@ function interactive {
       # r, w or x, that means user
       # typed position reversed.
       #
-      # ${u^^} makes $u upercase
       # "rev" command reverses input.
       'R' | 'W' | 'X') u=$(echo ${u^^} | rev) ;;
       #
@@ -329,7 +357,11 @@ function interactive {
       *) u=${u^^} ;;
     esac
     #
-    #
+    # Runs only if input is valid;
+    # this saves time when we know,
+    # that there's something wrong
+    # with the input.
+    [ $valid = 1 ] &&
     case $(echo $u | cut -b1) in
       # Checks rows and sets
       # corresponding variables.

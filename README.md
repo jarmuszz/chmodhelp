@@ -32,18 +32,19 @@ and prints it as a table.
 ```
 
 ## Examples
+### Numeric Notation
 ![](/images/example1.png)
 ```
 $ chmodhelp 755
 ```
   
-
+### Symbolic Notation
 ![](/images/example2.png)
 ```
 $ chmodhelp rw-r--r--
 ```
   
-
+### Interactive Mode
 ![](/images/example4.gif)
 ```
 $ chmodhelp -i
@@ -53,7 +54,7 @@ or
 $ chmodhelp --interactive
 ```
   
-
+### Demo Table
 ![](/images/example3.png)
 ```
 $ chmodhelp -d
