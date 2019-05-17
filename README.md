@@ -1,24 +1,17 @@
 # Chmodhelp
-Chmodhelp is a simple bash script that helps with everyday use of chmod.
+Chmodhelp is a simple bash script that helps with everyday use of chmod.  
+It translates numeric and symbolic notations of unix's flie premissions  
+and prints them as a table. There's also interactive mode avaible, in  
+which user fills the table, and notations are shown below it.  
 
-1. [Installation](#installation)
-2. [Uninstallation](#uninstallation)
-3. [Usage](#usage)
+
+1. [Usage](#usage)
     * [Options](#options)
-4. [Examples](#examples)
+2. [Examples](#examples)
+3. [Installation](#installation)
+4. [Uninstallation](#uninstallation)
 5. [License](#license)
 
-## Installation
-
-```
-$ make install
-``` 
-
-## Uninstallation
-
-```
-$ make uninstall
-```
 
 ## Usage
 Chmodhelp takes symbolic or numeric notation of unix permissions as first argument  
@@ -51,6 +44,17 @@ $ chmodhelp -i
 or
 ```
 $ chmodhelp --interactive
+```
+## Installation
+
+```
+$ make install
+``` 
+
+## Uninstallation
+
+```
+$ make uninstall
 ```
   
 
