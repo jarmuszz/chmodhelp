@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
 
+# chmodhelp - Simple tool, that helps with use of chmod
+# Copyright (C) 2019  Mariusz Jakoniuk (jarmusz)
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 function print_help {
 #################
 # help function #
@@ -15,7 +31,6 @@ function print_help {
     echo "Prints chmod table corresponding to NUMERIC NOTATION or SYMBOLIC NOTATION."
     echo ""
     echo "Options: -h, --help           Displays this message"
-    echo "         -d, --demo           Prints demo table"
     echo "         -i, --interactive    Interactive mode, see Interactive Mode for more help"
     echo ""
     echo "Interactive Mode:"
@@ -35,9 +50,17 @@ function print_help {
     echo "       chmodhelp 755"
     echo "       chmodhelp rwxr-xr-x"
     echo "       chmodhelp -h"
-    echo "       chmodhelp --demo"
+    echo ''
+    echo "chmodhelp Copyright (C) 2019 Mariusz Jakoniuk (jarmuszz)"
+    echo "This program comes with ABSOLUTELY NO WARRANTY."
+    echo "This is a free software released under GNU GPL"
+    echo "Version 3 license. You are free do modify and"
+    echo "redistribute it under certain conditions. Check LICENSE"
+    echo "file, bundled with the program (if you don't have it,"
+    echo "copy is avaible on https://www.gnu.org/licenses/)" 
+    echo "for more informations." 
     echo ""
-    echo "Version: 1.3"
+    echo "Version: 1.4"
     echo 'All bugs report to: https://github.com/jarmuszz/chmodhelp'
     exit 1
   else
@@ -61,10 +84,10 @@ function check_options {
   # e.g:
   #   OPTIONS[0] -> '-h'
   #   ACTIONS[0] -> 'print_help'
-  OPTIONS=('-h' '--help' '-d' '--demo' '-i' '--interactive')
+  OPTIONS=('-h' '--help'
+           '-i' '--interactive')
   #
   ACTIONS=("print_help" "print_help" 
-           "demo_table" "demo_table"
            "interactive" "interactive")
   #
   #
@@ -90,14 +113,17 @@ function num_to_text {
   # converts numeric to symbolic notation #
   #########################################
     #
-    # cuts number every iteration
+    # Gets one digit from
+    # number every iteration.
     # e.g. 755:
     #   1st iteration: 7
     #   2nd iteration: 5
     #   3rd iteration: 5
-    num=$(echo $1|cut -b${i})
+    num=$(echo "$1"|cut -b${i})
     #
-    # checking every number is faster than calculations
+    # Checking every number is 
+    # faster than calculations.
+    #
     case $num in
       7) echo -n "rwx" ;;
       6) echo -n "rw-" ;;
@@ -113,24 +139,36 @@ function num_to_text {
 
 function text_to_num {
     #
-    # init of the array
-    a=()
-    
-
+    # Variable "a" will hold
+    # numeric notation.
+    a=""
+    #
+    #
     for ((i=0; i<3; i++)) {
     #########################################
     # converts symbolic to numeric notation #
     #########################################
       #
-      # start of the segment
-      s=$(( $i * 3 + 1 ))
+      # Class' segment is segment
+      # of Symbolic Notation, which
+      # contains permissions related
+      # only to one class.
+      # (e.g. In "rwxr-xr-x" first
+      # segment is "rwx" and 
+      # it represents Owner's 
+      # permissions.) Every
+      # segment is exactly
+      # 3 symbols long.
       #
-      # end of the segment
-      e=$(( $s + 2 ))
+      # start of the class' segment
+      s=$(( i * 3 + 1 ))
+      #
+      # end of the class' segment
+      e=$(( s + 2 ))
       #
       # checking every combination is
       # faster than the calculations
-      case $(echo -n $1 | cut -b${s}-${e}) in
+      case $(echo -n "$1" | cut -b${s}-${e}) in
         "rwx") a+="7" ;;
         "rw-") a+="6" ;;
         "r-x") a+="5" ;;
@@ -158,13 +196,13 @@ function draw_table {
   num=0
   
 
-  if [[ ! -z $2 ]]; then
+  if [[ -n $2 ]]; then
   ######################################
   # runs when first argument is a text #
   ######################################
     #
     # num -> numeric notation
-    num=$(text_to_num $1)
+    num=$(text_to_num "$1")
     #
     # text_to_num returns -1 when format is incorrect
     [[ $num -eq -1 ]] && print_help "Invalid Symbolic Notation: $1"
@@ -185,7 +223,7 @@ function draw_table {
     #
     # translate numeric to symbolic notation
     # o -> numeric notation
-    o=$(num_to_text $1)
+    o=$(num_to_text "$1")
     #
     # num -> symbolic notation
     num=$o
@@ -193,25 +231,19 @@ function draw_table {
  
 
   for ((i=1; i<=${#o}; i++)) {
-  #####################
-  # colorizing output #
-  #####################
+  #################
+  # filling array #
+  #################
     #
     #
-    p=$(echo $o | cut -b${i})
+    p=$(echo "$o" | cut -b${i})
     case $p in
       #
-      # red
-      "r") a[i-1]="\e[31m${p}\e[39m" ;;
+      # filled
+      "r"|"w"|"x") a[i-1]="*" ;;
       #
-      # green
-      "w") a[i-1]="\e[32m${p}\e[39m" ;;
-      #
-      # blue
-      "x") a[i-1]="\e[34m${p}\e[39m" ;;
-      #
-      # default color
-      "-") a[i-1]="-" ;;
+      # empty
+      "-") a[i-1]=" " ;;
       *)
     esac
   }
@@ -222,13 +254,13 @@ function draw_table {
   # 
   echo -en  '\e[39m'
   echo -e  '    +---+---+---+'
-  echo -e  '    | r | w | x |'
+  echo -e  '    | \e[31mr\e[0m | \e[31mw\e[0m | \e[31mx\e[0m |'
   echo -e  '+---+---+---+---+'
-  echo -e  "| O | ${a[0]} | ${a[1]} | ${a[2]} |" 
+  echo -e  "| \e[32mO\e[0m | ${a[0]} | ${a[1]} | ${a[2]} |" 
   echo -e  '+---+---+---+---+'
-  echo -e  "| G | ${a[3]} | ${a[4]} | ${a[5]} |" 
+  echo -e  "| \e[32mG\e[0m | ${a[3]} | ${a[4]} | ${a[5]} |"  
   echo -e  '+---+---+---+---+'
-  echo -e  "| E | ${a[6]} | ${a[7]} | ${a[8]} |" 
+  echo -e  "| \e[32mE\e[0m | ${a[6]} | ${a[7]} | ${a[8]} |" 
   echo -e  '+---+---+---+---+'
   echo -e  "${1} -> ${num}"
 }
@@ -250,7 +282,7 @@ function interactive {
   # valid => is user input valid
   valid=1
   #
-  # a => array filling the table
+  # a => array that fills the table
   a=()
   #
   # Loop that fills array a with 
@@ -279,7 +311,7 @@ function interactive {
     echo -e  "| \e[32mE\e[0m | ${a[7]} | ${a[8]} | ${a[9]} |" 
     echo -e  '+---+---+---+---+'
     #
-    # "%03d" in "printf" mean, that
+    # "%03d" in "printf" means, that
     # variable "nn" will be always 
     # printed as 3 digit number.
     # It's because Numeric Notation
@@ -293,7 +325,7 @@ function interactive {
     #
     # Output will look like this:
     #   755 => rwxr-xr-x
-    echo "$nn => $(num_to_text $nn)"
+    echo "$nn => $(num_to_text "$nn")"
     #
     # Ctrl-C sends SIGINT signal
     # that stops the program.
@@ -313,7 +345,9 @@ function interactive {
     #
     # Reads user input and stores
     # it int the "u" variable.
-    read u
+    # "-r" option makes read
+    # ignore backslashes. 
+    read -r u
     #
     # Because "u" variable is modified
     # later, we create variable "ou" 
@@ -322,14 +356,17 @@ function interactive {
     # input is incorrect.
     ou=$u
     #
-    #
-    if [[ ${#u} > 2 ]]; then
+    # If user input is longer than
+    # 2, that means it's 
+    # incorrect.
+    if [[ ${#u} -gt 2 ]]; then
       valid=0
     fi
     #
     # The '^^' after u variable makes 
     # it upercase, this way lower and
-    # upercase can be treated as the same.
+    # upercase letters can be treated 
+    # as the same.
     #
     # Note: "not reversed" means that
     # permission char is the first one
@@ -340,7 +377,7 @@ function interactive {
     # that there's something wrong
     # with the input.
     [ $valid = 1 ] &&
-    case $(echo ${u^^} | cut -b1) in
+    case $(echo "${u^^}" | cut -b1) in
       # This part reverses input back
       # if user typed it in reverse.
       # e.g. xo => ox
@@ -350,7 +387,7 @@ function interactive {
       # typed position reversed.
       #
       # "rev" command reverses input.
-      'R' | 'W' | 'X') u=$(echo ${u^^} | rev) ;;
+      'R' | 'W' | 'X') u=$(echo "${u^^}" | rev) ;;
       #
       # If input is not reversed, then
       # we only make $u variable uppercase.
@@ -362,11 +399,11 @@ function interactive {
     # that there's something wrong
     # with the input.
     [ $valid = 1 ] &&
-    case $(echo $u | cut -b1) in
+    case $(echo "$u" | cut -b1) in
       # Checks rows and sets
       # corresponding variables.
       # r => row variable
-      # mult => numeric notation multiplayer
+      # mult => Numeric Notation Multiplayer
       #
       'O') r=0 
            mult=100
@@ -383,7 +420,7 @@ function interactive {
     esac
     #
     # c => columns
-    c=$(echo $u | cut -b2)
+    c=$(echo "$u" | cut -b2)
     #
     case $c in 
       # The same as above case
@@ -413,16 +450,16 @@ function interactive {
     ################################
       #
       # cn => cell number
-      cn=$(( $r + $c ))
+      cn=$(( r + c ))
       #
       # runs when cell is empty
-      if [[ a[$cn] -eq ' ' ]]; then
+      if [[ "${a[$cn]}" = " " ]]; then
         #
         # fills cell
         a[$cn]='*'
         # updates Numeric Notation
-        nn=$(( $bn * $mult + $nn ))
-        
+        nn=$(( bn * mult + nn ))
+       
       # runs when cell is filled
       else
         #
@@ -430,27 +467,10 @@ function interactive {
         a[$cn]=' '
         #
         # updates Numeric Notation
-        nn=$(( $nn - $bn * $mult ))
+        nn=$(( nn - bn * mult ))
       fi
     fi
   done
-}
-
-function demo_table {
-  ##############
-  # demo table #
-  ##############
-  #
-  echo -en  '\e[39m'
-  echo -e  '           +------+-------+---------+'
-  echo -e  '           | read | write | execute |'
-  echo -e  '+----------+------+-------+---------+'
-  echo -e  "| Owner    | 400  |  200  |   100   |" 
-  echo -e  '+----------+------+-------+---------+'
-  echo -e  "| Group    | 040  |  020  |   010   |" 
-  echo -e  '+----------+------+-------+---------+'
-  echo -e  "| Everyone | 004  |  002  |   001   |" 
-  echo -e  '+----------+------+-------+---------+'
 }
 
 
@@ -464,7 +484,7 @@ if [[ -z $1 ]]; then
   # runs when no argument is passed
   print_help
   #
-elif [ $1 -eq $1 2>/dev/null ]; then
+elif [ "$1" -eq "$1" ] 2>/dev/null; then
 ##################################
 # runs when argument is a number #
 ##################################
@@ -477,26 +497,28 @@ elif [ $1 -eq $1 2>/dev/null ]; then
   # User may input number with dash
   # at the beginning, if it's the
   # case, then we cut the dash here.
-  [ $arg -lt 0 ] &&
-    arg=$(echo $arg | cut -b2-)
-  #
+  [ "$arg" -lt 0 ] &&
+    arg=$(echo "$arg" | cut -b2-)
+  # 
   # Valid numeric notation is 3 digits
   # long. If argument is shorter, then
   # it's invalid.
-  [ ${#arg} = 3 ]   &&
-    draw_table $arg ||
+  if [ ${#arg} = 3 ]; then
+    draw_table "$arg"
+  else
     print_help "Invalid Numeric Notation: \"$1\"
     Number must be 3 digits long"
+  fi
   #
   #
 elif [[ ${#1} = 9 ]]; then
   #
   # runs when lenght of argument is 9 (lenght of symbolic notation)
-  draw_table $1 1
+  draw_table "$1" 1
   #
 else
   #
   # runs when argument doesnt mach any of above
-  check_options $1
+  check_options "$1"
   #
 fi
